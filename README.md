@@ -100,7 +100,7 @@ Calling this method will subscribe to the last referenced queue
 conn
   .queue('my-queue')
   .bind('my-exchange', '#')
-  .subscribe(function(message, headers, deliveryInfo, queue) {
+  .subscribe(function(message, headers, deliveryInfo, rawMessage, queue) {
     console.log(message)
   });
 ```

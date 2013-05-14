@@ -52,6 +52,13 @@ Chain.prototype.run = function() {
         if(!self.lastQueue) {
           throw new Error("Must call queue before " + method);
         }
+        var idx = args.length-1,
+            original = args[idx];
+
+        args[idx] = function(msg, headers, deliveryInfo, rawMessage) {
+          original(msg, headers, deliveryInfo, rawMessage, self.lastQueue);
+        };
+
         self.lastQueue[method].apply(self.lastQueue, args);
         self.run();
         break;
