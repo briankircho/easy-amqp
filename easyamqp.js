@@ -1,7 +1,11 @@
 var amqp = require('amqp'),
-    Chain = require('./chain');
+    Chain = require('./chain'),
+    events = require('events'),
+    util = require('util');
 
 var easyamqp = module.exports = function(options, implOptions) {
+  events.EventEmitter.call(this);
+
   if(typeof(options) === "string") {
     options = { url : options };
   }
@@ -10,12 +14,20 @@ var easyamqp = module.exports = function(options, implOptions) {
   return this;
 }
 
+util.inherits(easyamqp, events.EventEmitter);
+
 easyamqp.prototype.connection = function(readyCallback) {
   if(!this.conn) {
     var self = this;
     this.conn = amqp.createConnection(this.options, this.implOptions);
     this.conn.on('ready', function() {
       self.ready = true;
+    });
+    this.conn.on('error', function(err) {
+      if(self.listeners('error').length == 0) {
+        throw err;
+      }
+      self.emit('error', err);
     });
   }
 
@@ -42,3 +54,5 @@ easyamqp.prototype.end = function() {
     return new Chain(this, method, arguments);
   }
 });
+
+
