@@ -20,7 +20,7 @@ Chain.prototype.run = function() {
 
     switch(method) {
       case "queue":
-        args[1] = {};
+        args[1] = args[1] || {};
         args[2] = function(queue) {
           self.lastQueue = self.lastQueueOrExchange = queue;
           self.run();
