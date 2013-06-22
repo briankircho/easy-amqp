@@ -1,6 +1,6 @@
 {
   "name": "easy-amqp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "fluent wrapper around amqp",
   "main": "index.js",
   "scripts": {
@@ -19,7 +19,7 @@
   "author": "Brian Kirchoff <briankircho@gmail.com>",
   "license": "BSD",
   "dependencies": {
-    "amqp": "~0.1.6"
+    "amqp": "~0.1.7"
   },
   "devDependencies": {
     "should": "~1.2.2",
