@@ -14,13 +14,16 @@ Chain.prototype.run = function() {
 
   var self = this;
   this.easyamqp.connection(function(conn) {
-    var call = self.callQueue.shift(),
-        method = call[0],
+    var call = self.callQueue.shift();
+    if(!call) {
+      return;
+    }
+    var method = call[0],
         args = call[1];
 
     switch(method) {
       case "queue":
-        args[1] = {};
+        args[1] = args[1] || {};
         args[2] = function(queue) {
           self.lastQueue = self.lastQueueOrExchange = queue;
           self.run();
