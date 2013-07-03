@@ -1,6 +1,6 @@
 {
   "name": "easy-amqp",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "fluent wrapper around amqp",
   "main": "index.js",
   "scripts": {
