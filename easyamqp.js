@@ -11,6 +11,7 @@ var easyamqp = module.exports = function(options, implOptions) {
   }
   this.options = options;
   this.implOptions = implOptions;
+  this.connQueue = [];
   return this;
 }
 
@@ -22,6 +23,9 @@ easyamqp.prototype.connection = function(readyCallback) {
     this.conn = amqp.createConnection(this.options, this.implOptions);
     this.conn.on('ready', function() {
       self.ready = true;
+      self.connQueue.forEach(function(readyCallback) {
+        readyCallback(self.conn);;
+      })
     });
     this.conn.on('error', function(err) {
       if(self.listeners('error').length == 0) {
@@ -32,10 +36,7 @@ easyamqp.prototype.connection = function(readyCallback) {
   }
 
   if(!this.ready) {
-    var self = this;
-    this.conn.on('ready', function() {
-      readyCallback(self.conn);
-    });
+    this.connQueue.push(readyCallback);
   } else {
     readyCallback(this.conn);
   }
