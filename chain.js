@@ -1,6 +1,7 @@
 var Chain = module.exports = function(easyamqp, method, args) {
   this.easyamqp = easyamqp;
   this.callQueue = [];
+  this.running = false;
   this.add(method, args);
   return this;
 }
@@ -10,7 +11,8 @@ Chain.prototype.add = function(method, arguments) {
 }
 
 Chain.prototype.run = function() {
-  if(this.callQueue.length === 0) return;
+  if(this.running || this.callQueue.length === 0) return;
+  this.running = true;
 
   var self = this;
   this.easyamqp.connection(function(conn) {
@@ -26,6 +28,7 @@ Chain.prototype.run = function() {
         args[1] = args[1] || {};
         args[2] = function(queue) {
           self.lastQueue = self.lastQueueOrExchange = queue;
+          self.running = false;
           self.run();
         };
         conn.queue.apply(conn, args);
@@ -33,6 +36,7 @@ Chain.prototype.run = function() {
       case "exchange":
         args[2] = function(exchange) {
           self.lastExchange = self.lastQueueOrExchange = exchange;
+          self.running = false;
           self.run();
         };
         conn.exchange.apply(conn, args);
@@ -40,6 +44,7 @@ Chain.prototype.run = function() {
       case "bind":
       case "bind_headers":
         self.lastQueueOrExchange[method].apply(self.lastQueueOrExchange, args);
+        self.running = false;
         self.run();
         break;
       case "publish":
@@ -48,6 +53,7 @@ Chain.prototype.run = function() {
         } else {
           conn.publish.apply(conn, args);
         }
+        self.running = false;
         self.run();
         break;
       case "subscribe":
@@ -63,6 +69,7 @@ Chain.prototype.run = function() {
         };
 
         self.lastQueue[method].apply(self.lastQueue, args);
+        self.running = false;
         self.run();
         break;
     }
